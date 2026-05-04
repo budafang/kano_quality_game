@@ -55,7 +55,14 @@ const stages = [
     label: "第 4 關｜預算有限的品質策略",
     title: "先保底，再提升，最後創造驚喜",
     mode: "budget",
-    prompt: "你的預算只夠優先改善 3 個項目。請選出最合理的 Kano 品質策略。",
+    prompt: "你正在接手一場即將舉辦的『校園 AI 素養體驗日』。前測回饋顯示：學生最怕活動資訊錯、現場混亂、排隊太久；但主辦單位也希望活動有亮點、能被分享。現在預算只夠優先改善 3 個項目，請選出最合理的 Kano 品質策略。",
+    scenario: {
+      project: "校園 AI 素養體驗日",
+      audience: "主要受眾是大一學生與第一次接觸 AI 的參與者",
+      goal: "讓學生願意參加、現場體驗順暢，並在活動後留下對 AI 素養的具體印象",
+      constraints: "活動只剩兩週，預算與人力有限，只能先改善 3 個項目",
+      evidence: "前測訪談發現：學生最不能接受資訊錯誤、報到混亂、等待太久；但他們也期待活動有互動性與可分享的亮點"
+    },
     concept: "Kano 模型不是只拿來分類，而是資源配置工具。品質策略通常應該先保住基本品質，再強化一元品質，最後才投資魅力品質。",
     budgetItems: [
       {name:"修正錯誤活動資訊與報名確認信", type:"basic", value:30, risk:-25, desc:"讓參與者能取得一致、正確的活動資訊，並順利完成報名。"},
@@ -135,7 +142,8 @@ function renderBudget(s){
   chosenBudget = [];
   const area = document.getElementById('activity');
   area.className = '';
-  area.innerHTML = `<div class="chosen-list"><strong>已選項目：</strong><div id="chosenBox">尚未選擇</div></div><div class="budget-board">${s.budgetItems.map((item,idx)=>`
+  const context = s.scenario ? `<div class="summary-box"><h3>任務情境</h3><p><strong>專案：</strong>${s.scenario.project}</p><p><strong>受眾：</strong>${s.scenario.audience}</p><p><strong>目標：</strong>${s.scenario.goal}</p><p><strong>限制：</strong>${s.scenario.constraints}</p><p><strong>前測線索：</strong>${s.scenario.evidence}</p></div>` : '';
+  area.innerHTML = `${context}<div class="chosen-list"><strong>已選項目：</strong><div id="chosenBox">尚未選擇</div></div><div class="budget-board">${s.budgetItems.map((item,idx)=>`
     <div class="budget-card">
       <h4>${item.name}</h4>
       <p>${item.desc}</p>
