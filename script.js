@@ -58,13 +58,13 @@ const stages = [
     prompt: "你的預算只夠優先改善 3 個項目。請選出最合理的 Kano 品質策略。",
     concept: "Kano 模型不是只拿來分類，而是資源配置工具。品質策略通常應該先保住基本品質，再強化一元品質，最後才投資魅力品質。",
     budgetItems: [
-      {name:"修正錯誤活動資訊與報名確認信", type:"basic", value:30, risk:-25, desc:"避免基本品質失守。"},
-      {name:"改善現場動線與報到流程", type:"basic", value:28, risk:-22, desc:"降低混亂與抱怨。"},
-      {name:"縮短入場等待時間", type:"performance", value:24, risk:-14, desc:"做得越好，滿意度越高。"},
-      {name:"增加 AI 小遊戲互動攤位", type:"excitement", value:18, risk:-5, desc:"創造驚喜與分享點。"},
-      {name:"活動後寄個人化學習摘要", type:"excitement", value:17, risk:-4, desc:"提升記憶點與後續學習。"},
-      {name:"大型打卡裝置", type:"indifferent", value:4, risk:2, desc:"可能好看，但不一定影響核心滿意。"},
-      {name:"要求所有人下載 App 才能報到", type:"reverse", value:-12, risk:20, desc:"可能造成反感。"}
+      {name:"修正錯誤活動資訊與報名確認信", type:"basic", value:30, risk:-25, desc:"讓參與者能取得一致、正確的活動資訊，並順利完成報名。"},
+      {name:"改善現場動線與報到流程", type:"basic", value:28, risk:-22, desc:"讓參與者從抵達、報到到進入活動場域的過程更順暢。"},
+      {name:"縮短入場等待時間", type:"performance", value:24, risk:-14, desc:"減少排隊與等待，讓參與者更快進入活動體驗。"},
+      {name:"增加 AI 小遊戲互動攤位", type:"excitement", value:18, risk:-5, desc:"在活動中加入可操作、可分享的互動體驗。"},
+      {name:"活動後寄個人化學習摘要", type:"excitement", value:17, risk:-4, desc:"活動後提供參與者專屬整理與延伸學習建議。"},
+      {name:"大型打卡裝置", type:"indifferent", value:4, risk:2, desc:"設置視覺亮點，讓參與者可以拍照分享。"},
+      {name:"要求所有人下載 App 才能報到", type:"reverse", value:-12, risk:20, desc:"把報到流程集中到單一數位工具上。"}
     ]
   }
 ];
@@ -137,7 +137,6 @@ function renderBudget(s){
   area.className = '';
   area.innerHTML = `<div class="chosen-list"><strong>已選項目：</strong><div id="chosenBox">尚未選擇</div></div><div class="budget-board">${s.budgetItems.map((item,idx)=>`
     <div class="budget-card">
-      <span class="tag">${TYPES[item.type]}</span>
       <h4>${item.name}</h4>
       <p>${item.desc}</p>
       <button class="secondary" id="budget-${idx}" onclick="chooseBudget(${idx})">選擇</button>
@@ -157,6 +156,17 @@ function renderChosen(){
   box.innerHTML = chosenBudget.length ? chosenBudget.map(i=>`<span class="chosen-item">${s.budgetItems[i].name}</span>`).join('') : '尚未選擇';
 }
 
+function describeBudgetItem(item){
+  const explanations = {
+    basic: `這屬於「基本品質」。它不一定會讓人驚喜，但若沒做好，參與者會直接不滿。Kano 策略上應優先守住。`,
+    performance: `這屬於「一元品質」。做得越好，滿意度越高；它通常是提升競爭力與體驗品質的重要投資。`,
+    excitement: `這屬於「魅力品質」。沒有時參與者未必抱怨，但有了會覺得驚喜、願意分享或留下記憶點。`,
+    indifferent: `這較接近「無差異品質」。它可能好看或有趣，但不一定影響核心滿意，若預算有限通常不應優先。`,
+    reverse: `這屬於「反轉品質」。原本可能想提升效率，但會讓參與者覺得麻煩、被迫或被打擾，反而降低滿意度。`
+  };
+  return explanations[item.type];
+}
+
 function submitBudget(){
   const s = stages[current];
   if(chosenBudget.length < 3){
@@ -166,18 +176,37 @@ function submitBudget(){
     return;
   }
   const picked = chosenBudget.map(i=>s.budgetItems[i]);
-  const hasBasic = picked.filter(x=>x.type==='basic').length;
+  const unpicked = s.budgetItems.filter((_,i)=>!chosenBudget.includes(i));
+  const count = type => picked.filter(x=>x.type===type).length;
   const hasReverse = picked.some(x=>x.type==='reverse');
   let points = picked.reduce((sum,x)=>sum+x.value,0);
   let riskDelta = picked.reduce((sum,x)=>sum+x.risk,0);
-  if(hasBasic >= 2) points += 20;
+  if(count('basic') >= 2) points += 20;
   if(hasReverse) points -= 20;
   score += points;
   risk = Math.max(0, Math.min(100, risk + riskDelta));
+
+  const diagnosis = [];
+  if(count('basic') >= 2) diagnosis.push('你有先守住基本品質，這可以避免活動一開始就因資訊錯誤、動線混亂或流程不順而引發不滿。');
+  else diagnosis.push('你的選擇沒有優先守住基本品質。這代表活動可能很有亮點，但如果報名、資訊或現場流程出錯，參與者仍會不滿。');
+  if(count('performance') >= 1) diagnosis.push('你也投資了一元品質，能讓體驗隨著改善程度而提升，例如等待更短、流程更快。');
+  if(count('excitement') >= 1) diagnosis.push('你選到魅力品質，這有助於創造驚喜與分享點，但它應該建立在基本品質已穩定的前提上。');
+  if(count('indifferent') >= 1) diagnosis.push('你選到可能較無差異的項目。它不一定錯，但在預算有限時，要確認它是否真的影響核心滿意。');
+  if(hasReverse) diagnosis.push('你選到了反轉品質。這類設計常以效率或管理為名，但會把便利變成負擔，應盡量避免。');
+
   logs.push({stage:s.label, result:`選擇：${picked.map(x=>x.name).join('、')}`, note:'策略取捨：先保住基本品質，再投資一元品質與魅力品質。'});
   document.querySelectorAll('.budget-card button').forEach(x=>x.disabled=true);
   const fb = document.getElementById('feedback');
-  fb.innerHTML = `<strong>策略回饋：</strong>${hasBasic>=2 ? '你的策略有先守住基本品質，較能避免不滿。' : '你的策略沒有優先守住基本品質，可能出現「活動很炫但基本體驗很差」的問題。'}${hasReverse ? '<br>你選到反轉品質項目，這會提高誤判風險。' : ''}<br><br><strong>Kano 策略提醒：</strong>基本品質失守時，魅力品質很難補救。`;
+  fb.innerHTML = `
+    <strong>策略回饋：</strong>
+    <p>${diagnosis.join('</p><p>')}</p>
+    <h4>你選擇的 3 個項目解析</h4>
+    <ul>${picked.map(item=>`<li><strong>${item.name}</strong>：${TYPES[item.type]}。${describeBudgetItem(item)}</li>`).join('')}</ul>
+    <h4>你沒有選的項目中，特別值得注意</h4>
+    <ul>${unpicked.filter(item=>item.type==='basic' || item.type==='performance' || item.type==='reverse').map(item=>`<li><strong>${item.name}</strong>：${TYPES[item.type]}。${describeBudgetItem(item)}</li>`).join('')}</ul>
+    <h4>Kano 策略提醒</h4>
+    <p>資源有限時，不是先做最炫的功能，而是先問：哪些功能一失守就會造成不滿？哪些功能做得越好越能提升滿意？哪些功能只是加分？哪些功能可能反而惹人厭？</p>
+    <p><strong>建議順序：</strong>基本品質不能失守 → 一元品質逐步提升 → 魅力品質創造驚喜 → 無差異品質謹慎投入 → 反轉品質盡量避免。</p>`;
   fb.classList.remove('hidden');
   document.getElementById('nextBtn').classList.remove('hidden');
   updateScore();
