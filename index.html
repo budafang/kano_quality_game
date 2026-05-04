@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kano 二維品質模式｜四關卡互動遊戲</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <section class="hero card">
+      <div>
+        <div class="eyebrow">Kano Model × Communication Management</div>
+        <h1>Kano 品質探險隊</h1>
+        <p class="lead">四關卡互動遊戲，讓學生在分類、判斷、取捨與策略中理解 Kano 二維品質模式。</p>
+      </div>
+      <div class="mascot" aria-hidden="true"><div class="face">K</div><div class="bubble">先保底，再驚喜！</div></div>
+    </section>
+
+    <section id="intro" class="card">
+      <h2>遊戲任務</h2>
+      <p>Kano 模型提醒我們：不是所有功能都用同一種方式影響滿意度。有些功能沒有會生氣，有些越多越好，有些會帶來驚喜，也有些做了反而扣分。</p>
+      <div class="kano-grid">
+        <div><strong>基本品質</strong><span>沒有會不滿，有了也只是應該。</span></div>
+        <div><strong>一元品質</strong><span>做得越好，滿意度越高。</span></div>
+        <div><strong>魅力品質</strong><span>沒有不抱怨，有了會驚喜。</span></div>
+        <div><strong>無差異品質</strong><span>有沒有都不太影響。</span></div>
+        <div><strong>反轉品質</strong><span>做了反而讓人不舒服。</span></div>
+      </div>
+      <button class="primary" onclick="startGame()">開始四關挑戰</button>
+    </section>
+
+    <section id="game" class="hidden">
+      <div class="topbar card">
+        <div><div class="eyebrow" id="levelLabel">關卡</div><h2 id="title">題目</h2></div>
+        <div class="scorebox"><div>理解分數 <strong id="score">0</strong></div><div>誤判風險 <strong id="risk">40</strong>%</div></div>
+      </div>
+      <section class="card">
+        <div id="prompt"></div>
+        <div id="activity"></div>
+        <div id="feedback" class="feedback hidden"></div>
+        <button id="nextBtn" class="primary hidden" onclick="nextStage()">下一步</button>
+      </section>
+      <section class="card concept"><h3>本關概念</h3><div id="concept"></div></section>
+    </section>
+
+    <section id="between" class="card hidden">
+      <h2 id="betweenTitle">關卡完成</h2>
+      <div id="betweenBody"></div>
+      <button class="primary" onclick="continueGame()">進入下一關</button>
+    </section>
+
+    <section id="result" class="card hidden">
+      <h2>四關完成：Kano 品質策略總整理</h2>
+      <div id="resultBody"></div>
+      <button class="primary" onclick="restartGame()">重新挑戰</button>
+    </section>
+
+    <section class="card teacher">
+      <h2>教師使用方式</h2>
+      <ol>
+        <li>第 1 關建立五種品質屬性的基本分類。</li>
+        <li>第 2 關用桃園機場服務品質案例，理解同一個服務場景中不同品質屬性的差異。</li>
+        <li>第 3 關用校園 AI 素養活動，讓學生思考功能設計與受眾體驗。</li>
+        <li>第 4 關加入預算限制，讓學生學會用 Kano 模型做品質策略取捨。</li>
+      </ol>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
